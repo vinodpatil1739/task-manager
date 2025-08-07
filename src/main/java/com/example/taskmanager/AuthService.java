@@ -23,25 +23,32 @@ public class AuthService {
     private JwtUtil jwtUtil;
 
     public User registerUser(User user) {
-        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
+        // Convert username to lowercase before checking
+        String username = user.getUsername().toLowerCase();
+        
+        if (userRepository.findByUsername(username).isPresent()) {
             throw new RuntimeException("Username is already taken!");
         }
-
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+            throw new RuntimeException("Email is already registered!");
+        }
         if (!isPasswordStrong(user.getPassword())) {
             throw new RuntimeException("Password is not strong enough.");
         }
 
+        user.setUsername(username); // Save the lowercase version
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         
         return userRepository.save(user);
     }
     
     public String loginUser(LoginRequest loginRequest) {
+        // Convert username to lowercase before authenticating
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+                new UsernamePasswordAuthenticationToken(loginRequest.getUsername().toLowerCase(), loginRequest.getPassword()));
 
         if(authentication.isAuthenticated()){
-            return jwtUtil.generateToken(loginRequest.getUsername());
+            return jwtUtil.generateToken(loginRequest.getUsername().toLowerCase());
         } else {
             throw new RuntimeException("Invalid username or password");
         }
