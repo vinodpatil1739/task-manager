@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal; // Import Principal
 import java.util.List;
 
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "https://melodic-bonbon-896328.netlify.app/")
 @RestController
 @RequestMapping("/api/tasks")
 public class TaskController {
